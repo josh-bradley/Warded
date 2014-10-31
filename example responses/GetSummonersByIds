@@ -1,0 +1,23 @@
+{
+   "20005423": {
+      "id": 20005423,
+      "name": "cellismaxium",
+      "profileIconId": 611,
+      "revisionDate": 1412951300000,
+      "summonerLevel": 30
+   },
+   "19353269": {
+      "id": 19353269,
+      "name": "ParkGreen",
+      "profileIconId": 7,
+      "revisionDate": 1413074593000,
+      "summonerLevel": 30
+   },
+   "32170": {
+      "id": 32170,
+      "name": "Ransack",
+      "profileIconId": 588,
+      "revisionDate": 1412993873000,
+      "summonerLevel": 30
+   }
+}
