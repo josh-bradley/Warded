@@ -52,7 +52,7 @@ var countWards = function(data){
             participant.stats.wardsKilled);
     }
 
-    printWardCount();
+    //printWardCount();
 }
 
 var printWardCount = function(){
@@ -81,10 +81,11 @@ var getMatch = function(){
     var request = "https://na.api.pvp.net/api/lol/na/v2.2/match/" + matchId + "?api_key=b4f8745b-f145-4392-bccb-90cebe04d4c5";
     console.log(request);
     rest.get(request)
+        .on("fail", function(result, response){
+
+        })
         .on("success", function(data){
-            if(data.queueType === "NORMAL_5x5_BLIND" || data.queueType === "RANKED_SOLO_5x5" ||
-                data.queueType === "NORMAL_5x5_DRAFT" || data.queueType === "RANKED_TEAM_5x5" ||
-                data.queueType === "RANKED_PREMADE_5x5"){
+            if(useGameType(data.queueType)){
                 var summonorIds = "";
                 matchData = data;
 
@@ -105,5 +106,11 @@ var getMatch = function(){
     setTimeout(getMatch, 5000);
     summoners = {};
 };
+
+var useGameType = function(gameType){
+    return gameType === "NORMAL_5x5_BLIND" || gameType === "NORMAL_5x5_DRAFT" ||
+            gameType === "RANKED_SOLO_5x5" || gameType === "RANKED_TEAM_5x5" ||
+            gameType === "RANKED_PREMADE_5x5";
+}
 
 setTimeout(getMatch, 5000);
