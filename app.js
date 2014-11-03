@@ -76,7 +76,11 @@ var printWardCount = function(){
 }
 
 var getMatch = function(){
-    var matchId = datalayer.getNextMatchId();
+    datalayer.getNextMatchId(processMatch);
+}
+
+var processMatch = function(err, item){
+    var matchId = item[0].lastMatchId;
     matchId += 1;
     var request = "https://na.api.pvp.net/api/lol/na/v2.2/match/" + matchId + "?api_key=b4f8745b-f145-4392-bccb-90cebe04d4c5";
     console.log(request);
