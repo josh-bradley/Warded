@@ -1,11 +1,35 @@
 var winWards = 0, loseWards = 0;
 var wardsByRank = {};
 var mongoClient = require('mongodb').MongoClient;
+var mongoose = require('mongoose');
 
-var winLossCollectionName = 'winLossCount';
-var wardCountCollectionName = 'wardCount';
 var lastMatchIdCollectionName = 'lastMatchId';
+var wardCount, winLossWardCount;
 
+var dbInit = function(){
+    mongoose.connect('mongodb://localhost:27017/warded');
+
+
+    wardCount = mongoose.model('wardCount', {
+            rank:String,
+            wardsPlaced:Number,
+            visionWardsBoughtInGame:Number,
+            games:Number,
+            sightWardsBoughtInGame:Number,
+            wardsKilled:Number
+    });
+
+    winLossWardCount = mongoose.model('winLossCount', {
+        winner: String,
+        visionBroughtCount: Number,
+        sightBroughtCount: Number,
+        placedCount: Number,
+        killedCount: Number,
+        players: Number
+    });
+}
+
+dbInit();
 
 var performDbAction = function(action){
     var url = 'mongodb://localhost:27017/warded';
@@ -55,45 +79,41 @@ exports.getNextMatchId = function(){
 }
 
 exports.updateWardCount = function(isWinner, rank, wardsPlaced, visionWardsBoughtInGame, sightWardsBoughtInGame, wardsKilled){
-
-    var updateWardPlayCount = function(db, callback){
-        var wardCount = db.collection(wardCountCollectionName);
-        rank = rank || "NOT_RANKED";
-         wardCount.update({rank:rank},
-            {$set: {rank:rank},
-                $inc: {
-                    wardsPlaced:wardsPlaced,
-                    visionWardsBoughtInGame:visionWardsBoughtInGame,
-                    games:1,
-                    sightWardsBoughtInGame:sightWardsBoughtInGame,
-                    wardsKilled:wardsKilled
+    rank = rank || "NOT_RANKED";
+    wardCount.update({rank:rank},
+        {$set: {rank:rank},
+            $inc: {
+                wardsPlaced:wardsPlaced,
+                visionWardsBoughtInGame:visionWardsBoughtInGame,
+                games:1,
+                sightWardsBoughtInGame:sightWardsBoughtInGame,
+                wardsKilled:wardsKilled
             }}, {upsert:true}, function(err){
-                err && console.log("Error updating rank ward details: " + err);
-                callback();
-            });
-    }
+            err && console.log("Error updating rank ward details: " + err);
 
-    var updateWinLossWardCount = function(db, callback){
-        var winLossCountCollection = db.collection(winLossCollectionName);
-        var winWardsPlaced = 0, lossWardsPlaced = 0;
-        if(isWinner){
-            winWardsPlaced = wardsPlaced;
-        } else {
-            lossWardsPlaced = wardsPlaced;
-        }
+        });
 
-        winLossCountCollection.update({}, {$inc:{
-            winPlacedCount:winWardsPlaced,
-            lossPlacedCount:lossWardsPlaced,
-            players:1
+    winLossWardCount.update({winner:isWinner},
+        {$set: {winner:isWinner},
+        $inc:{
+            visionBroughtCount: visionWardsBoughtInGame,
+            sightBroughtCount: sightWardsBoughtInGame,
+            placedCount: wardsPlaced,
+            killedCount: wardsKilled,
+            players: 1
         }}, {upsert:true}, function(err){
             err && console.log("Error updating win loss: " + err);
-            callback();
         });
-    }
+}
 
-    performDbAction(updateWardPlayCount);
-    performDbAction(updateWinLossWardCount);
+exports.getWardCount = function(callback){
+    wardCount.find(function(err, wardCounts){
+       callback(err, wardCounts);
+    });
+};
+
+exports.getWinLossWardCount = function(callback){
+    winLossWardCount.find(callback);
 }
 
 exports.getWardsByRank = function(){
