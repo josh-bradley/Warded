@@ -1,0 +1,24 @@
+<table>
+    <thead>
+        <tr>
+            <td>Rank</td>
+            <td>Winner</td>
+            <td>Wards Placed</td>
+            <td>Sight Wards Brought</td>
+            <td>Vision Wards Brought</td>
+            <td>Wards Killed</td>
+            <td>Players</td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="item in wardsByRank">
+            <td>{{item.rank}}</td>
+            <td>{{item.winner}}</td>
+            <td>{{item.wardsPlaced}} (avg {{ item.wardsPlaced / item.players | number : 2 }})</td>
+            <td>{{item.sightWardsBoughtInGame}} (avg {{ item.sightWardsBoughtInGame / item.players | number : 2 }})</td>
+            <td>{{item.visionWardsBoughtInGame}} (avg {{ item.visionWardsBoughtInGame/ item.players | number : 2 }})</td>
+            <td>{{item.wardsKilled}} (avg {{ item.wardsKilled / item.players | number : 2 }})</td>
+            <td>{{item.players}}</td>   
+        </tr>
+    </tbody>
+</table>
