@@ -1,8 +1,6 @@
 var rest = require("restler");
 var _ = require("underscore");
-var datalayer = require("./data");
-var fs = require("fs");
-var sprintf = require("sprintf-js").sprintf;
+var datalayer = require("./data")
 
 var summoners = {};
 var matchData;
@@ -51,28 +49,6 @@ var countWards = function(data){
             participant.stats.sightWardsBoughtInGame,
             participant.stats.wardsKilled);
     }
-
-    //printWardCount();
-}
-
-var printWardCount = function(){
-    console.log(datalayer.getWinWards() + " " + datalayer.getLoseWards());
-    fs.appendFile("C:\\Users\\josh\\Documents\\LolWards.txt", datalayer.getWinWards() + " " + datalayer.getLoseWards() + " - " + datalayer.getNextMatchId() + "\r\n", function(){});
-
-    var wardsByRankArray = datalayer.getWardsByRank();
-    console.log("Rank\t\tPlaced\tVision\tSight\tKilled\tPlayers");
-    console.log("-------------------------------------------------------");
-    for(var rank in wardsByRankArray){
-        var wardsByRank = wardsByRankArray[rank];
-        console.log(rank
-            + "\t" + sprintf("%.2f", wardsByRank.wards / wardsByRank.count)
-            + "\t" + sprintf("%.2f", wardsByRank.visionWardsBoughtInGame / wardsByRank.count)
-            + "\t" + sprintf("%.2f", wardsByRank.sightWardsBoughtInGame / wardsByRank.count)
-            + "\t" + sprintf("%.2f", wardsByRank.wardsKilled / wardsByRank.count)
-            + "\t" + wardsByRank.count);
-    }
-
-
 }
 
 var getMatch = function(){
