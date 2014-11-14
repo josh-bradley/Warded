@@ -1,24 +1,14 @@
 var winWards = 0, loseWards = 0;
 var mongoose = require('mongoose');
+var dataTypes = require('./dataTypes');
 
 var wardCount, lastMatchId;
 
 var dbInit = function(){
     mongoose.connect('mongodb://localhost:27017/warded');
 
-    lastMatchId = mongoose.model('lastmatchid', {
-       lastMatchId: Number
-    });
-
-    wardCount = mongoose.model('wardCount', {
-            rank:String,
-            wardsPlaced:Number,
-            visionWardsBoughtInGame:Number,
-            players:Number,
-            sightWardsBoughtInGame:Number,
-            wardsKilled:Number,
-            winner:String
-    });
+    lastMatchId = mongoose.model('lastmatchid', dataTypes.lastMatchId);
+    wardCount = mongoose.model('wardCount', dataTypes.wardCount);
 }
 
 dbInit();

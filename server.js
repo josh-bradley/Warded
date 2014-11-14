@@ -11,7 +11,9 @@ app.use(bodyParser.urlencoded({'extended': 'true'}));
 app.use(bodyParser.json());
 app.use(bodyParser.json({type: 'application/vnd.api+json'}));
 
-app.listen(8080);
+app.listen(8080, function(){
+   console.log('Server started...')
+});
 
 app.get('/api/wardCount', function(req, res){
     data.getWardCount(function(err, data){
