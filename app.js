@@ -2,6 +2,7 @@ var rest = require("restler");
 var _ = require("underscore");
 var datalayer = require("./data")
 var wardCountBuilder = require("./wardCountBuilder").wardCountBuilder;
+var API_SERVER = require("./constants").API_SERVER;
 
 var summoners = {};
 var matchData;
@@ -37,7 +38,7 @@ var getMatch = function(){
 var processMatch = function(err, item){
     var matchId = item[0].lastMatchId;
     matchId += 1;
-    var request = "https://na.api.pvp.net/api/lol/na/v2.2/match/" + matchId + "?api_key=b4f8745b-f145-4392-bccb-90cebe04d4c5&includeTimeline=true";
+    var request = API_SERVER +"/api/lol/na/v2.2/match/" + matchId + "?api_key=b4f8745b-f145-4392-bccb-90cebe04d4c5&includeTimeline=true";
     rest.get(request)
         .on("fail", function(result, response){
 
@@ -56,7 +57,7 @@ var processMatch = function(err, item){
                 }
 
                 if(summonorIds){
-                    rest.get("https://na.api.pvp.net/api/lol/na/v2.5/league/by-summoner/"+ summonorIds  +"/entry?api_key=b4f8745b-f145-4392-bccb-90cebe04d4c5")
+                    rest.get(API_SERVER + "/api/lol/na/v2.5/league/by-summoner/"+ summonorIds  +"/entry?api_key=b4f8745b-f145-4392-bccb-90cebe04d4c5")
                         .on("success", summonersReturned);
                 } else{
                     countWards(matchData);
