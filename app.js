@@ -7,7 +7,7 @@ var API_SERVER = require("./constants").API_SERVER;
 var summoners = {};
 var matchData;
 
-var summonersReturned = function(summonersData){
+var onSummonersReturned = function(summonersData){
     for(var p in summonersData){
         var rankedSolo = _.find(summonersData[p], function(team) { return team.queue === 'RANKED_SOLO_5x5' });
         var rankDescription = null;
@@ -40,40 +40,46 @@ var processMatch = function(err, item){
     matchId += 1;
     var request = API_SERVER +"/api/lol/na/v2.2/match/" + matchId + "?api_key=b4f8745b-f145-4392-bccb-90cebe04d4c5&includeTimeline=true";
     rest.get(request)
-        .on("fail", function(result, response){
-
-        })
-        .on("success", function(data){
-            if(useGameType(data.queueType) && isSummonersRift(data.mapId)) {
-                console.log("Processing match " + matchId + "that started on " + new Date(data.matchCreation));
-
-                var summonorIds = "";
-                matchData = data;
-
-                for(var i = 0; i < data.participantIdentities.length; i++){
-                    if(data.participantIdentities[i].player) {
-                        summonorIds += data.participantIdentities[i].player.summonerId + ',';
-                    }
-                }
-
-                if(summonorIds){
-                    rest.get(API_SERVER + "/api/lol/na/v2.5/league/by-summoner/"+ summonorIds  +"/entry?api_key=b4f8745b-f145-4392-bccb-90cebe04d4c5")
-                        .on("success", summonersReturned);
-                } else{
-                    countWards(matchData);
-                }
-            } else {
-                console.log("Skipping match " + matchId + " map type id " + data.mapId + " game type " + data.queueType + " played at " +  new Date(data.matchCreation));
-            }
-    });
+        .on("success", onSuccessfulMatchRetrieve);
     setTimeout(getMatch, 5000);
     summoners = {};
 };
 
-var useGameType = function(gameType){
-    return gameType === "NORMAL_5x5_BLIND" || gameType === "NORMAL_5x5_DRAFT" ||
-            gameType === "RANKED_SOLO_5x5" || gameType === "RANKED_TEAM_5x5" ||
-            gameType === "RANKED_PREMADE_5x5";
+var onSuccessfulMatchRetrieve = function(data){
+    if(isApplicableQueueType(data.queueType) && isSummonersRift(data.mapId)) {
+        console.log("Processing match " + data.matchId + "that started on " + new Date(data.matchCreation));
+
+        var summonerIds = buildSummonerIdsFilter(data);
+        matchData = data;
+
+        if(summonerIds){
+            rest.get(API_SERVER + "/api/lol/na/v2.5/league/by-summoner/"+ summonerIds  +"/entry?api_key=b4f8745b-f145-4392-bccb-90cebe04d4c5")
+                .on("success", onSummonersReturned);
+        } else{
+            countWards(data);
+        }
+    } else {
+        console.log("Skipping match " + data.matchId + " map type id " + data.mapId + " game type " + data.queueType + " played at " +  new Date(data.matchCreation));
+    }
+}
+
+var buildSummonerIdsFilter = function(data){
+    var summonerIds = "";
+    matchData = data;
+
+    for(var i = 0; i < data.participantIdentities.length; i++){
+        if(data.participantIdentities[i].player) {
+            summonerIds += data.participantIdentities[i].player.summonerId + ',';
+        }
+    }
+
+    return summonerIds;
+}
+
+var isApplicableQueueType = function(queue) {
+    return queue === "NORMAL_5x5_BLIND" || queue === "NORMAL_5x5_DRAFT" ||
+            queue === "RANKED_SOLO_5x5" || queue === "RANKED_TEAM_5x5" ||
+            queue === "RANKED_PREMADE_5x5";
 }
 
 var isSummonersRift = function(mapId) {
