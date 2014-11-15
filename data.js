@@ -1,7 +1,6 @@
-var winWards = 0, loseWards = 0;
 var mongoose = require('mongoose');
 var dataTypes = require('./dataTypes');
-
+var NOT_RANKED = require("./constants").NOT_RANKED;
 var wardCount, lastMatchId;
 
 var dbInit = function(){
@@ -13,14 +12,6 @@ var dbInit = function(){
 
 dbInit();
 
-exports.updateWinWards = function(wards){
-    winWards += wards;
-}
-
-exports.updateLoseWards = function(wards){
-    loseWards += wards;
-}
-
 exports.getNextMatchId = function(callback){
     lastMatchId.find(callback);
 
@@ -29,16 +20,17 @@ exports.getNextMatchId = function(callback){
     });
 }
 
-exports.updateWardCount = function(isWinner, rank, wardsPlaced, visionWardsBoughtInGame, sightWardsBoughtInGame, wardsKilled){
-    rank = rank || "NOT_RANKED";
-    wardCount.update({rank:rank, winner: isWinner},
-        {$set: {rank:rank, winner:isWinner},
+exports.updateWardCount = function(participantWardCount){
+    var rank = participantWardCount.rank || NOT_RANKED;
+    wardCount.update({rank:rank, winner: participantWardCount.winner},
+        {$set: {rank:rank, winner:participantWardCount.winner},
             $inc: {
-                wardsPlaced:wardsPlaced,
-                visionWardsBoughtInGame:visionWardsBoughtInGame,
+                wardsPlaced:participantWardCount.wardsPlaced,
+                visionWardsBoughtInGame:participantWardCount.visionWardsBoughtInGame,
                 players:1,
-                sightWardsBoughtInGame:sightWardsBoughtInGame,
-                wardsKilled:wardsKilled
+                sightWardsBoughtInGame:participantWardCount.sightWardsBoughtInGame,
+                wardsKilled:participantWardCount.wardsKilled,
+                championId:participantWardCount.championId
             }}, {upsert:true}, function(err){
             err && console.log("Error updating rank ward details: " + err);
         });

@@ -1,29 +1,14 @@
 var rest = require("restler");
 var _ = require("underscore");
 var datalayer = require("./data")
+var wardCountBuilder = require("./wardCountBuilder").wardCountBuilder;
 
 var summoners = {};
 var matchData;
 
-var getSummonerRankByParticipantId = function(participentId, data){
-    var participant = _.find(data.participantIdentities, function(pid) { return pid.participantId === participentId });
-    if(participant && participant.player){
-        var summoner = summoners[participant.player.summonerId];
-        if(summoner){
-            return summoner.rank;
-        }
-        else{
-            return null;
-        }
-    }
-    else{
-        return null;
-    }
-}
-
-var summonersReturned = function(data){
-    for(var p in data){
-        var rankedSolo = _.find(data[p], function(team) { return team.queue === 'RANKED_SOLO_5x5' });
+var summonersReturned = function(summonersData){
+    for(var p in summonersData){
+        var rankedSolo = _.find(summonersData[p], function(team) { return team.queue === 'RANKED_SOLO_5x5' });
         var rankDescription = null;
         if(rankedSolo){
             rankDescription = rankedSolo.tier + "_" + rankedSolo.entries[0].division;
@@ -37,18 +22,12 @@ var summonersReturned = function(data){
     countWards(matchData);
 };
 
-var countWards = function(data){
-    for(var i = 0; i < data.participants.length; i++){
-        var participant = data.participants[i];
-        var rank = getSummonerRankByParticipantId(participant.participantId, data);
-
-        datalayer.updateWardCount(participant.stats.winner,
-            rank,
-            participant.stats.wardsPlaced,
-            participant.stats.visionWardsBoughtInGame,
-            participant.stats.sightWardsBoughtInGame,
-            participant.stats.wardsKilled);
-    }
+var countWards = function(matchData){
+    var w = wardCountBuilder(matchData, summoners);
+    _.each(matchData.participants, function(p) {
+       datalayer.updateWardCount(w.getWardDetailsForParticipant(p.participantId));
+    });
+    console.log("Done processing match: " + matchData.matchId);
 }
 
 var getMatch = function(){
@@ -58,14 +37,15 @@ var getMatch = function(){
 var processMatch = function(err, item){
     var matchId = item[0].lastMatchId;
     matchId += 1;
-    var request = "https://na.api.pvp.net/api/lol/na/v2.2/match/" + matchId + "?api_key=b4f8745b-f145-4392-bccb-90cebe04d4c5";
-    console.log(request);
+    var request = "https://na.api.pvp.net/api/lol/na/v2.2/match/" + matchId + "?api_key=b4f8745b-f145-4392-bccb-90cebe04d4c5&includeTimeline=true";
     rest.get(request)
         .on("fail", function(result, response){
 
         })
         .on("success", function(data){
-            if(useGameType(data.queueType)){
+            if(useGameType(data.queueType) && isSummonersRift(data.mapId)) {
+                console.log("Processing match " + matchId + "that started on " + new Date(data.matchCreation));
+
                 var summonorIds = "";
                 matchData = data;
 
@@ -81,6 +61,8 @@ var processMatch = function(err, item){
                 } else{
                     countWards(matchData);
                 }
+            } else {
+                console.log("Skipping match " + matchId + " map type id " + data.mapId + " game type " + data.queueType + " played at " +  new Date(data.matchCreation));
             }
     });
     setTimeout(getMatch, 5000);
@@ -92,5 +74,9 @@ var useGameType = function(gameType){
             gameType === "RANKED_SOLO_5x5" || gameType === "RANKED_TEAM_5x5" ||
             gameType === "RANKED_PREMADE_5x5";
 }
+
+var isSummonersRift = function(mapId) {
+  return mapId === 1 || mapId === 2 || mapId === 11;
+};
 
 setTimeout(getMatch, 5000);

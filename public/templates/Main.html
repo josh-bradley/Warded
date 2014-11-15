@@ -1,4 +1,4 @@
-<table>
+<table class="col-md-8 col-md-offset-2">
     <thead>
         <tr>
             <td>Rank</td>
@@ -12,7 +12,7 @@
     </thead>
     <tbody>
         <tr ng-repeat="item in wardsByRank">
-            <td>{{item.rank}}</td>
+            <td rowspan="2" ng-hide="item.winner">{{item.rank}}</td>
             <td>{{item.winner}}</td>
             <td>{{item.wardsPlaced}} (avg {{ item.wardsPlaced / item.players | number : 2 }})</td>
             <td>{{item.sightWardsBoughtInGame}} (avg {{ item.sightWardsBoughtInGame / item.players | number : 2 }})</td>
