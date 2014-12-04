@@ -22,15 +22,14 @@ exports.getNextMatchId = function(callback){
 
 exports.updateWardCount = function(participantWardCount){
     var rank = participantWardCount.rank || NOT_RANKED;
-    wardCount.update({rank:rank, winner: participantWardCount.winner},
-        {$set: {rank:rank, winner:participantWardCount.winner},
+    wardCount.update({rank:rank, winner: participantWardCount.winner, role:participantWardCount.role},
+        {$set: {rank:rank, winner:participantWardCount.winner, role:participantWardCount.role},
             $inc: {
                 wardsPlaced:participantWardCount.wardsPlaced,
                 visionWardsBoughtInGame:participantWardCount.visionWardsBoughtInGame,
                 players:1,
                 sightWardsBoughtInGame:participantWardCount.sightWardsBoughtInGame,
-                wardsKilled:participantWardCount.wardsKilled,
-                championId:participantWardCount.championId
+                wardsKilled:participantWardCount.wardsKilled
             }}, {upsert:true}, function(err){
             err && console.log("Error updating rank ward details: " + err);
         });

@@ -2,6 +2,7 @@
     <thead>
         <tr>
             <td>Rank</td>
+            <td>Role</td>
             <td>Winner</td>
             <td>Wards Placed</td>
             <td>Sight Wards Brought</td>
@@ -12,7 +13,10 @@
     </thead>
     <tbody>
         <tr ng-repeat="item in wardsByRank">
-            <td rowspan="2" ng-hide="item.winner">{{item.rank}}</td>
+            <!--<td rowspan="2" ng-hide="item.winner">{{item.rank}}</td>
+            -->
+            <td>{{item.rank}}</td>
+            <td>{{item.role}}</td>
             <td>{{item.winner}}</td>
             <td>{{item.wardsPlaced}} (avg {{ item.wardsPlaced / item.players | number : 2 }})</td>
             <td>{{item.sightWardsBoughtInGame}} (avg {{ item.sightWardsBoughtInGame / item.players | number : 2 }})</td>
