@@ -1,14 +1,20 @@
 {
-    "name": "warded",
-    "version": "0.0.0",
-    "description": "Web site that tracks wards placed in league of legends",
-    "main": "server.js",
-    "author": "josh",
-    "dependencies": {
-        "express":"~4.10.1",
-        "mongoose"   : "~3.6.2",
-        "morgan"     : "~1.2.2",
-        "body-parser": "~1.5.2",
-        "method-override": "~2.1.2"
-    }
+  "name": "warded",
+  "version": "0.0.0",
+  "description": "Web site that tracks wards placed in league of legends",
+  "main": "server.js",
+  "author": "josh",
+  "dependencies": {
+    "express": "~4.10.1",
+    "mongoose": "~3.6.2",
+    "morgan": "~1.2.2",
+    "body-parser": "~1.5.2",
+    "method-override": "~2.1.2",
+    "restler": "~3.2.2",
+    "underscore": "~1.7.0"
+  },
+  "devDependencies": {
+    "grunt-jasmine-node": "~0.2.1",
+    "grunt": "~0.4.5"
+  }
 }
